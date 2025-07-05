@@ -14,7 +14,7 @@ export default function Login() {
   const [slidePosition, setSlidePosition] = useState(0);
   const [isForgotPasswordModalOpen, setIsForgotPasswordModalOpen] =
     useState(false);
-  const { signInWithGoogle, signInWithFacebook, user } = useAuth();
+  const { signInWithGoogle, signInWithFacebook, user, userProfile } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -22,10 +22,14 @@ export default function Login() {
   }, [activeTab]);
 
   useEffect(() => {
-    if (user) {
-      router.push("/");
+    if (user && userProfile) {
+      if (userProfile.role === "tenant") {
+        router.push("/tenant");
+      } else {
+        router.push("/");
+      }
     }
-  }, [user, router]);
+  }, [user, userProfile, router]);
 
   const handleGoogleSignIn = async () => {
     try {
@@ -72,7 +76,7 @@ export default function Login() {
               >
                 <TabsList className="grid w-full h-10 grid-cols-2">
                   <TabsTrigger value="traveler">Traveler</TabsTrigger>
-                  <TabsTrigger value="owner">Owner</TabsTrigger>
+                  <TabsTrigger value="tenant">Tenant</TabsTrigger>
                 </TabsList>
 
                 {/* Sliding Container */}
@@ -88,7 +92,7 @@ export default function Login() {
                       onForgotPasswordClick={handleForgotPasswordClick}
                     />
                     <LoginForm
-                      type="owner"
+                      type="tenant"
                       onGoogleSignIn={handleGoogleSignIn}
                       onFacebookSignIn={handleFacebookSignIn}
                       onForgotPasswordClick={handleForgotPasswordClick}

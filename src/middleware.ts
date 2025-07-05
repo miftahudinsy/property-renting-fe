@@ -45,13 +45,51 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith(path)
   );
 
+  // Jika ada user yang login
   if (user && !isExcludedPath) {
     const hasPassword = user.app_metadata?.has_password;
     const provider = user.app_metadata?.provider;
 
+    // Jika user email provider dan belum set password, redirect ke profile
     if (provider === "email" && !hasPassword) {
       return NextResponse.redirect(new URL("/profile", request.url));
     }
+
+    // Jika user sudah lengkap, cek role dan redirect sesuai role
+    if (hasPassword || provider !== "email") {
+      try {
+        // Ambil role user dari database
+        const { data: userData } = await supabase
+          .from("users")
+          .select("role")
+          .eq("id", user.id)
+          .single();
+
+        const userRole = userData?.role;
+
+        // Jika user adalah tenant
+        if (userRole === "tenant") {
+          // Jika tenant mengakses homepage, redirect ke /tenant
+          if (request.nextUrl.pathname === "/") {
+            return NextResponse.redirect(new URL("/tenant", request.url));
+          }
+        }
+
+        // Protect route /tenant - hanya untuk tenant
+        if (request.nextUrl.pathname.startsWith("/tenant")) {
+          if (userRole !== "tenant") {
+            return NextResponse.redirect(new URL("/", request.url));
+          }
+        }
+      } catch (error) {
+        console.error("Error checking user role:", error);
+      }
+    }
+  }
+
+  // Jika tidak ada user dan mengakses route /tenant, redirect ke login
+  if (!user && request.nextUrl.pathname.startsWith("/tenant")) {
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   return supabaseResponse;

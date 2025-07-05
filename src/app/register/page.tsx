@@ -16,9 +16,9 @@ export default function Register() {
   const [verifyEmailData, setVerifyEmailData] = useState({
     email: "",
     fullName: "",
-    role: "traveler" as "traveler" | "owner",
+    role: "traveler" as "traveler" | "tenant",
   });
-  const { signInWithGoogle, signInWithFacebook, user } = useAuth();
+  const { signInWithGoogle, signInWithFacebook, user, userProfile } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -26,10 +26,14 @@ export default function Register() {
   }, [activeTab]);
 
   useEffect(() => {
-    if (user) {
-      router.push("/");
+    if (user && userProfile) {
+      if (userProfile.role === "tenant") {
+        router.push("/tenant");
+      } else {
+        router.push("/");
+      }
     }
-  }, [user, router]);
+  }, [user, userProfile, router]);
 
   const handleGoogleSignIn = async () => {
     try {
@@ -52,7 +56,7 @@ export default function Register() {
   const handleShowVerifyModal = (
     email: string,
     fullName: string,
-    role: "traveler" | "owner"
+    role: "traveler" | "tenant"
   ) => {
     setVerifyEmailData({ email, fullName, role });
     setShowVerifyModal(true);
@@ -81,7 +85,7 @@ export default function Register() {
               >
                 <TabsList className="grid w-full h-10 grid-cols-2">
                   <TabsTrigger value="traveler">Traveler</TabsTrigger>
-                  <TabsTrigger value="owner">Owner</TabsTrigger>
+                  <TabsTrigger value="tenant">Tenant</TabsTrigger>
                 </TabsList>
 
                 {/* Sliding Container */}
@@ -97,7 +101,7 @@ export default function Register() {
                       onShowVerifyModal={handleShowVerifyModal}
                     />
                     <RegistrationForm
-                      type="owner"
+                      type="tenant"
                       onGoogleSignIn={handleGoogleSignIn}
                       onFacebookSignIn={handleFacebookSignIn}
                       onShowVerifyModal={handleShowVerifyModal}
