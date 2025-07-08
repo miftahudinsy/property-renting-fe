@@ -6,22 +6,22 @@ import { Users, Bed } from "lucide-react";
 import { SearchParams } from "@/lib/types/search";
 import DateRangePicker from "./DateRangePicker";
 
+interface RoomPicture {
+  id: number;
+  file_path: string;
+  public_url: string;
+}
+
 interface Room {
   id: number;
   name: string;
   price: number;
   description: string;
   max_guests: number;
-  picture: string;
-  created_at: string;
-  updated_at: string;
-  property_id: number;
   quantity: number;
-  bookings: any[];
-  room_unavailabilities: any[];
-  peak_season_rates: any[];
   available_quantity: number;
   final_price: number;
+  room_pictures: RoomPicture[];
 }
 
 interface RoomListProps {
@@ -74,7 +74,11 @@ const RoomList: React.FC<RoomListProps> = ({
             <div className="md:w-1/3">
               <div className="h-48 md:h-full overflow-hidden relative">
                 <Image
-                  src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/room-image//${room.picture}`}
+                  src={
+                    room.room_pictures && room.room_pictures.length > 0
+                      ? room.room_pictures[0].public_url
+                      : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/property-pictures//placeholder.png`
+                  }
                   alt={room.name}
                   fill
                   className="object-cover"
