@@ -86,7 +86,7 @@ const PromoCarousel = () => {
           {promoImages.map((imageUrl, index) => (
             <CarouselItem
               key={index}
-              className="pl-2 md:pl-4 basis-full md:basis-1/3"
+              className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3"
             >
               <div className="relative aspect-[16/9] overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <Image
