@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { format, addDays } from "date-fns";
 
 interface Destination {
   name: string;
@@ -46,6 +47,14 @@ const PopularDestinations = () => {
     },
   ];
 
+  // Generate dynamic dates
+  const today = new Date();
+  const checkInDate = addDays(today, 1); // 1 hari setelah hari ini
+  const checkOutDate = addDays(today, 2); // 2 hari setelah hari ini
+
+  const checkIn = format(checkInDate, "yyyy-MM-dd");
+  const checkOut = format(checkOutDate, "yyyy-MM-dd");
+
   return (
     <div className="container mx-auto px-4 py-12">
       <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">
@@ -56,7 +65,7 @@ const PopularDestinations = () => {
         {destinations.map((destination) => (
           <Link
             key={destination.cityId}
-            href={`/search?city_id=${destination.cityId}&check_in=2025-07-13&check_out=2025-07-14&guests=2&page=1`}
+            href={`/search?city_id=${destination.cityId}&check_in=${checkIn}&check_out=${checkOut}&guests=2&page=1`}
             className="group block"
           >
             <div className="relative overflow-hidden rounded-2xl shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105 h-48 md:h-56">
