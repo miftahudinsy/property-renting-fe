@@ -1,6 +1,7 @@
 import PromoCarousel from "@/components/PromoCarousel";
 import PropertySearchForm from "@/components/PropertySearchForm";
-import FeaturedProperty from "@/components/FeaturedProperty";
+import PopularDestinations from "@/components/PopularDestinations";
+import WhyChooseUs from "@/components/WhyChooseUs";
 
 const Home = () => {
   return (
@@ -14,19 +15,19 @@ const Home = () => {
 
         <div className="container mx-auto px-4 ">
           <div className="mb-8">
-            <h2 className="text-2xl font-extrabold text-center mb-6 md:mt-2 text-white">
+            <h2 className="text-3xl font-extrabold text-center mb-6 md:mt-2 text-white">
               Cari Penginapan Terbaik
             </h2>
             <PropertySearchForm />
           </div>
         </div>
-        {/* <div className="container mx-auto pr-0 lg:pr-4 px-4">
-          <h2 className="text-2xl font-bold text-gray-800 ">
-            Properti Populer
-          </h2>
-          <FeaturedProperty />
-        </div> */}
       </div>
+
+      {/* Popular Destinations Section */}
+      <PopularDestinations />
+
+      {/* Why Choose Us Section */}
+      <WhyChooseUs />
     </div>
   );
 };
