@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Users, Bed } from "lucide-react";
 import { SearchParams } from "@/lib/types/search";
+import { useAuth } from "@/contexts/AuthContext";
 import DateRangePicker from "./DateRangePicker";
+import BookingDialog from "./BookingDialog";
 
 interface RoomPicture {
   id: number;
@@ -22,6 +24,10 @@ interface Room {
   available_quantity: number;
   final_price: number;
   room_pictures: RoomPicture[];
+  peak_season_rates: {
+    start_date: string;
+    end_date: string;
+  }[];
 }
 
 interface RoomListProps {
@@ -35,6 +41,10 @@ const RoomList: React.FC<RoomListProps> = ({
   searchParams,
   propertyId,
 }) => {
+  const { user } = useAuth();
+  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("id-ID", {
       style: "currency",
@@ -44,7 +54,13 @@ const RoomList: React.FC<RoomListProps> = ({
   };
 
   const handleBookRoom = (room: Room) => {
-    alert(`Booking kamar ${room.name} akan diimplementasikan nanti`);
+    setSelectedRoom(room);
+    setIsDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    setSelectedRoom(null);
   };
 
   if (!rooms || rooms.length === 0) {
@@ -56,6 +72,11 @@ const RoomList: React.FC<RoomListProps> = ({
       </div>
     );
   }
+
+  // Parse check-in date from URL search params once for all rooms
+  const checkInDate = searchParams.check_in
+    ? new Date(searchParams.check_in)
+    : null;
 
   return (
     <div className="space-y-6">
@@ -125,7 +146,29 @@ const RoomList: React.FC<RoomListProps> = ({
                   <div className="md:text-right md:ml-6">
                     <div className="mb-4">
                       <div className="text-2xl font-bold text-orange-600">
-                        {formatCurrency(room.final_price)}
+                        {/* Tentukan harga yang ditampilkan: gunakan final_price hanya jika check-in berada di rentang peak season */}
+                        {(() => {
+                          let displayPrice = room.price;
+
+                          if (checkInDate && room.peak_season_rates) {
+                            const isPeak = room.peak_season_rates.some(
+                              (rate) => {
+                                const start = new Date(rate.start_date);
+                                const end = new Date(rate.end_date);
+                                return (
+                                  checkInDate.getTime() >= start.getTime() &&
+                                  checkInDate.getTime() <= end.getTime()
+                                );
+                              }
+                            );
+
+                            if (isPeak) {
+                              displayPrice = room.final_price;
+                            }
+                          }
+
+                          return formatCurrency(displayPrice);
+                        })()}
                       </div>
                       <div className="text-sm text-gray-500">per malam</div>
                     </div>
@@ -151,6 +194,16 @@ const RoomList: React.FC<RoomListProps> = ({
           </div>
         </Card>
       ))}
+
+      {/* Booking Dialog */}
+      {selectedRoom && (
+        <BookingDialog
+          isOpen={isDialogOpen}
+          onClose={handleCloseDialog}
+          isLoggedIn={!!user}
+          roomName={selectedRoom.name}
+        />
+      )}
     </div>
   );
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import SearchHeader from "@/components/SearchHeader";
 import PropertyDetail from "@/components/PropertyDetail";
@@ -19,7 +19,7 @@ interface PropertyData {
   available_rooms: Array<any>;
 }
 
-const PropertyDetailPage = () => {
+const PropertyDetailContent = () => {
   const params = useParams();
   const searchParams = useSearchParams();
   const [propertyData, setPropertyData] = useState<PropertyData | null>(null);
@@ -65,9 +65,9 @@ const PropertyDetailPage = () => {
         const checkOutOriginal = currentSearchParams.check_out;
         const guests = currentSearchParams.guests;
 
-        // Sesuaikan tanggal (-1 hari) untuk menutupi kesalahan input DB
-        const checkIn = shiftDate(checkInOriginal, -1);
-        const checkOut = shiftDate(checkOutOriginal, -1);
+        // Gunakan tanggal asli tanpa penyesuaian karena issue DB sudah diperbaiki
+        const checkIn = checkInOriginal;
+        const checkOut = checkOutOriginal;
 
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/properties/detail?property_id=${propertyId}&check_in=${checkIn}&check_out=${checkOut}&guests=${guests}`
@@ -179,4 +179,21 @@ const PropertyDetailPage = () => {
   );
 };
 
-export default PropertyDetailPage;
+export default function PropertyDetailPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-background">
+          <div className="container mx-auto px-4 py-8">
+            <div className="space-y-6">
+              <Skeleton className="h-96 w-full" />
+              <Skeleton className="h-64 w-full" />
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <PropertyDetailContent />
+    </Suspense>
+  );
+}
