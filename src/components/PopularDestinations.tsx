@@ -49,8 +49,8 @@ const PopularDestinations = () => {
 
   // Generate dynamic dates
   const today = new Date();
-  const checkInDate = addDays(today, 1); // 1 hari setelah hari ini
-  const checkOutDate = addDays(today, 2); // 2 hari setelah hari ini
+  const checkInDate = addDays(today, 2); // 2 hari setelah hari ini
+  const checkOutDate = addDays(today, 4); // 4 hari setelah hari ini
 
   const checkIn = format(checkInDate, "yyyy-MM-dd");
   const checkOut = format(checkOutDate, "yyyy-MM-dd");
